@@ -414,6 +414,46 @@ export const en = {
       patterns: 'Patterns',
       feedback: 'Suggestions',
       users: 'Users',
+      prompts: 'AI Prompts',
+    },
+    prompts: {
+      title: 'AI Prompts',
+      intro:
+        'Here you adjust the instructions the AI receives at each step of the analysis. Edit the text, save, and that is it: the app uses the new version within 1 minute, no store update needed. The response format (the fields the app reads) is fixed and protected, so you cannot break the analysis by accident.',
+      processEntry: {
+        title: 'Emotions',
+        desc: 'First step: reads the entry and identifies the emotions present.',
+      },
+      analyzeBeliefs: {
+        title: 'Beliefs',
+        desc: 'Second step: from the entry and the validated emotions, proposes core belief hypotheses.',
+      },
+      detectPatterns: {
+        title: 'Patterns',
+        desc: 'Third step: analyzes the entry history and identifies recurring patterns.',
+      },
+      instructionsLabel: 'Instructions for the AI',
+      versionDefault: 'Default version (from code)',
+      versionCustom: 'Custom version {{version}}',
+      customBadge: 'This prompt has a saved custom version',
+      saved: 'Saved',
+      discard: 'Discard changes',
+      history: 'History',
+      historyTitle: 'Previous versions',
+      historyEmpty: 'No previous versions yet.',
+      loadVersion: 'Load this version',
+      loadVersionConfirm:
+        'Load version {{version}} into the editor? It replaces the current text, but only takes effect when you click Save.',
+      resetDefault: 'Restore default',
+      resetConfirm:
+        'Go back to the default text from the code? Your custom version is kept in the history and can be reloaded later.',
+      showContract: 'Show the response format (fixed)',
+      hideContract: 'Hide the response format',
+      contractNote:
+        'This block is appended automatically to the end of your instructions. It defines the fields the app reads and cannot be edited.',
+      effectNote:
+        'Tip: change one thing at a time, save, and test with 2 or 3 real entries before the next tweak. Every saved version is kept in the history and can be restored.',
+      loadError: 'Could not load the prompts. Check your connection and try again.',
     },
     period: {
       d7: '7 days',

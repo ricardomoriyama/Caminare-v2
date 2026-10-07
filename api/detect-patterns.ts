@@ -17,7 +17,8 @@ import {
 } from './_lib/runtime.js';
 import { applyCors } from './_lib/cors.js';
 import { runStructured } from './_lib/claude.js';
-import { SYSTEM_DETECT_PATTERNS, buildDetectPatternsUser } from './_lib/prompts.js';
+import { buildDetectPatternsUser } from './_lib/prompts.js';
+import { getSystemPrompt } from './_lib/prompt-loader.js';
 import { trackServer } from './_lib/analytics.js';
 
 // 60s: Claude com timeout 25s + 1 retry (~50s no pior caso). Com 30s dava 504
@@ -135,7 +136,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const promptStart = Date.now();
   try {
     const { data: ai } = await runStructured<AiResult>(
-      SYSTEM_DETECT_PATTERNS,
+      // Instrução editável pelo admin + contrato JSON fixo (ver prompt-loader.ts).
+      (await getSystemPrompt('detect_patterns')).system,
       buildDetectPatternsUser({
         idioma: body.idioma ?? 'pt-BR',
         historicoCompleto,

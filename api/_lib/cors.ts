@@ -22,7 +22,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const ALLOW_ORIGIN = '*';
-const ALLOW_METHODS = 'POST, OPTIONS';
+const ALLOW_METHODS = 'GET, POST, OPTIONS';
 const ALLOW_HEADERS = 'authorization, content-type, apikey';
 
 /** Seta os cabeçalhos CORS na resposta (vale para preflight e respostas normais). */

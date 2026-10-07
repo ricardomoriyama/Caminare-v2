@@ -19,8 +19,10 @@ import {
   Menu,
   X,
   Shield,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { PromptsView } from './admin/PromptsView';
 import {
   getAdminStats,
   getAdminFeedback,
@@ -43,7 +45,7 @@ import {
 import { formatDate } from '../lib/format';
 
 type FeedbackFilter = 'all' | FeedbackStatus;
-type AdminSection = 'overview' | 'emotions' | 'beliefs' | 'patterns' | 'users' | 'feedback';
+type AdminSection = 'overview' | 'emotions' | 'beliefs' | 'patterns' | 'users' | 'feedback' | 'prompts';
 const DETAIL_SECTIONS: AdminSection[] = ['emotions', 'beliefs', 'patterns'];
 
 const SIDEBAR_WIDTH = 256;
@@ -161,6 +163,7 @@ export function AdminScreen() {
     patterns: t('admin.nav.patterns'),
     users: t('admin.nav.users'),
     feedback: t('admin.nav.feedback'),
+    prompts: t('admin.nav.prompts'),
   };
 
   const initial = (profile?.full_name?.[0] ?? user?.email?.[0] ?? 'A').toUpperCase();
@@ -458,6 +461,7 @@ export function AdminScreen() {
             {!loading && section === 'users' && (
               <UsersView users={users} loading={usersLoading} lang={i18n.language} />
             )}
+            {section === 'prompts' && <PromptsView />}
           </div>
         </main>
       </div>
@@ -488,6 +492,7 @@ function SidebarContent({
     { id: 'patterns', label: t('admin.nav.patterns'), icon: TrendingUp },
     { id: 'users', label: t('admin.nav.users'), icon: Users },
     { id: 'feedback', label: t('admin.nav.feedback'), icon: MessageSquare },
+    { id: 'prompts', label: t('admin.nav.prompts'), icon: Sparkles },
   ];
 
   return (

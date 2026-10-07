@@ -15,7 +15,8 @@ import {
 } from './_lib/runtime.js';
 import { applyCors } from './_lib/cors.js';
 import { runStructured, CLAUDE_MODEL } from './_lib/claude.js';
-import { SYSTEM_ANALYZE_BELIEFS, buildAnalyzeBeliefsUser } from './_lib/prompts.js';
+import { buildAnalyzeBeliefsUser } from './_lib/prompts.js';
+import { getSystemPrompt } from './_lib/prompt-loader.js';
 import { trackServer } from './_lib/analytics.js';
 
 // 60s: a chamada do Claude tem timeout de 25s E faz 1 retry (ate ~50s no pior
@@ -107,7 +108,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const promptStart = Date.now();
   try {
     const { data: ai, raw } = await runStructured<AiResult>(
-      SYSTEM_ANALYZE_BELIEFS,
+      // Instrução editável pelo admin + contrato JSON fixo (ver prompt-loader.ts).
+      (await getSystemPrompt('analyze_beliefs')).system,
       buildAnalyzeBeliefsUser({
         transcricao,
         idioma: body.idioma ?? 'pt-BR',

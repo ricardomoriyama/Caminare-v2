@@ -14,21 +14,33 @@
 // volátil no turno do usuário.
 // =============================================================================
 
+// ─── Prompts EDITÁVEIS pelo admin ────────────────────────────────────────────
+// Cada SYSTEM_* é montado como: INSTRUCTIONS (editável no painel admin, salva na
+// tabela ai_prompts) + CONTRACT (fixo aqui no código). Separar os dois é o que
+// permite ao admin ajustar tom/critérios sem conseguir quebrar os nomes dos
+// campos JSON que o app lê. Os DEFAULT_* são o fallback quando não há nada salvo
+// no banco (e o conteúdo inicial que o painel mostra). Ver prompt-loader.ts.
+
+export type PromptKey = 'process_entry' | 'analyze_beliefs' | 'detect_patterns';
+
 // ─── PROMPT 1 — process-entry ────────────────────────────────────────────────
 
-export const SYSTEM_PROCESS_ENTRY = `Você é um analisador emocional especializado em identificar, com alta precisão, o conteúdo emocional presente em relatos livres de usuários do Caminare, um aplicativo de autoconhecimento. Você fará a extração e normalização emocional dos registros dos usuários. Seu papel é processar relatos pessoais e identificar, de forma conservadora e precisa, as emoções presentes no texto. Você nunca responde diretamente ao usuário. Você apenas processa o relato e retorna dados estruturados para o sistema. Você não faz diagnóstico. Não faz inferências de crenças, esquemas cognitivos, traços de personalidade ou padrões de trauma. Não interpreta o que não está no texto. Seu trabalho é extração e normalização, nada além disso.
+export const DEFAULT_INSTRUCTIONS_PROCESS_ENTRY = `Você é um analisador emocional especializado em identificar, com alta precisão, o conteúdo emocional presente em relatos livres de usuários do Caminare, um aplicativo de autoconhecimento. Você fará a extração e normalização emocional dos registros dos usuários. Seu papel é processar relatos pessoais e identificar, de forma conservadora e precisa, as emoções presentes no texto. Você nunca responde diretamente ao usuário. Você apenas processa o relato e retorna dados estruturados para o sistema. Você não faz diagnóstico. Não faz inferências de crenças, esquemas cognitivos, traços de personalidade ou padrões de trauma. Não interpreta o que não está no texto. Seu trabalho é extração e normalização, nada além disso.
 
 INSTRUÇÕES:
 - Identifique até 6 emoções presentes no relato. Para cada uma informe: nome (substantivo curto, em minúsculas, no idioma do relato), intensidade ("sutil", "moderada" ou "alta") e confiança (número de 0 a 1).
 - Você pode inferir emoções implícitas quando forem altamente prováveis a partir do texto, mas não crie narrativas complexas nem emoções que não tenham sustentação no relato.
-- Seja conservador: na dúvida, não invente. Menos itens com alta confiança é melhor que muitos itens duvidosos.
+- Seja conservador: na dúvida, não invente. Menos itens com alta confiança é melhor que muitos itens duvidosos.`;
 
-CONTRATO DE SAÍDA:
+export const CONTRACT_PROCESS_ENTRY = `CONTRATO DE SAÍDA:
 Retorne APENAS um objeto JSON válido, sem markdown, sem cercas de código, sem texto antes ou depois, exatamente neste formato:
 {
   "status": "ok",
   "emocoes": [{ "nome": "string", "intensidade": "sutil|moderada|alta", "confianca": 0.0 }]
 }`;
+
+/** Prompt completo padrão (mantido para compatibilidade; os endpoints usam getSystemPrompt). */
+export const SYSTEM_PROCESS_ENTRY = `${DEFAULT_INSTRUCTIONS_PROCESS_ENTRY}\n\n${CONTRACT_PROCESS_ENTRY}`;
 
 export function buildProcessEntryUser(input: {
   transcricao: string;
@@ -53,7 +65,7 @@ export function buildProcessEntryUser(input: {
 
 // ─── PROMPT 2 — analyze-beliefs ──────────────────────────────────────────────
 
-export const SYSTEM_ANALYZE_BELIEFS = `Você é o componente de identificação de crenças centrais do Caminare, um app de autoconhecimento. A partir do relato do usuário e dos itens que ele validou, você levanta HIPÓTESES de crenças centrais que operam por baixo da superfície. Você nunca responde ao usuário nem dialoga: apenas processa e devolve JSON. Nunca diagnostica, nunca afirma certezas, trata toda crença como hipótese.
+export const DEFAULT_INSTRUCTIONS_ANALYZE_BELIEFS = `Você é o componente de identificação de crenças centrais do Caminare, um app de autoconhecimento. A partir do relato do usuário e dos itens que ele validou, você levanta HIPÓTESES de crenças centrais que operam por baixo da superfície. Você nunca responde ao usuário nem dialoga: apenas processa e devolve JSON. Nunca diagnostica, nunca afirma certezas, trata toda crença como hipótese.
 
 O QUE É UMA CRENÇA (entenda antes de propor):
 - É inconsciente. NÃO é o pensamento consciente, NÃO é a emoção, NÃO é o evento. É a conclusão oculta, uma camada ABAIXO do que foi pensado e sentido, que organiza como a pessoa reage emocionalmente e enxerga o mundo.
@@ -82,9 +94,9 @@ Para cada crença informe:
 - "origem_provavel": 1 frase, linguagem de possibilidade.
 - "areas_de_vida": array (ex.: "trabalho", "relacionamentos", "saúde", "autoimagem").
 - "recorrencia": "nova" ou "recorrente".
-- "confianca": número de 0 a 1.
+- "confianca": número de 0 a 1.`;
 
-CONTRATO DE SAÍDA:
+export const CONTRACT_ANALYZE_BELIEFS = `CONTRATO DE SAÍDA:
 Retorne APENAS um objeto JSON válido, sem markdown, sem cercas de código, sem texto antes ou depois, exatamente neste formato:
 {
   "status": "ok",
@@ -98,6 +110,8 @@ Retorne APENAS um objeto JSON válido, sem markdown, sem cercas de código, sem 
     "confianca": 0.0
   }]
 }`;
+
+export const SYSTEM_ANALYZE_BELIEFS = `${DEFAULT_INSTRUCTIONS_ANALYZE_BELIEFS}\n\n${CONTRACT_ANALYZE_BELIEFS}`;
 
 export function buildAnalyzeBeliefsUser(input: {
   transcricao: string;
@@ -130,7 +144,7 @@ export function buildAnalyzeBeliefsUser(input: {
 
 // ─── PROMPT 3 — detect-patterns ──────────────────────────────────────────────
 
-export const SYSTEM_DETECT_PATTERNS = `Você é um componente de reconhecimento de padrões comportamentais e emocionais do Caminare, um aplicativo de autoconhecimento. Seu papel é analisar o histórico de registros de um usuário ao longo do tempo e identificar padrões recorrentes, regularidades de associações emocionais, cognitivas ou comportamentais detectadas longitudinalmente a partir de múltiplos registros. Padrões não podem ser detectados em registros isolados. Exigem recorrência ao longo do tempo e distribuição temporal. São hipóteses interpretativas, não certezas, e serão apresentadas ao usuário para validação. Você nunca responde diretamente ao usuário. Você apenas processa os dados e retorna estrutura JSON para o sistema.
+export const DEFAULT_INSTRUCTIONS_DETECT_PATTERNS = `Você é um componente de reconhecimento de padrões comportamentais e emocionais do Caminare, um aplicativo de autoconhecimento. Seu papel é analisar o histórico de registros de um usuário ao longo do tempo e identificar padrões recorrentes, regularidades de associações emocionais, cognitivas ou comportamentais detectadas longitudinalmente a partir de múltiplos registros. Padrões não podem ser detectados em registros isolados. Exigem recorrência ao longo do tempo e distribuição temporal. São hipóteses interpretativas, não certezas, e serão apresentadas ao usuário para validação. Você nunca responde diretamente ao usuário. Você apenas processa os dados e retorna estrutura JSON para o sistema.
 
 INSTRUÇÕES:
 - Só proponha um padrão quando ele aparecer em múltiplos registros e em dias diferentes. Na dúvida, não proponha.
@@ -147,9 +161,9 @@ INSTRUÇÕES:
   - "severidade": "leve" | "moderada" | "significativa".
   - "valencia": "negativa" | "neutra" | "positiva".
   - "evolucao": "emergente" | "estavel" | "intensificando" | "aliviando".
-  - "confianca": número de 0 a 1.
+  - "confianca": número de 0 a 1.`;
 
-CONTRATO DE SAÍDA:
+export const CONTRACT_DETECT_PATTERNS = `CONTRATO DE SAÍDA:
 Retorne APENAS um objeto JSON válido, sem markdown, sem cercas de código, sem texto antes ou depois, exatamente neste formato:
 {
   "status": "ok",
@@ -167,6 +181,15 @@ Retorne APENAS um objeto JSON válido, sem markdown, sem cercas de código, sem 
     "confianca": 0.0
   }]
 }`;
+
+export const SYSTEM_DETECT_PATTERNS = `${DEFAULT_INSTRUCTIONS_DETECT_PATTERNS}\n\n${CONTRACT_DETECT_PATTERNS}`;
+
+/** Instrução padrão e contrato fixo de cada prompt, indexados pela key do banco. */
+export const PROMPT_DEFAULTS: Record<PromptKey, { instructions: string; contract: string }> = {
+  process_entry: { instructions: DEFAULT_INSTRUCTIONS_PROCESS_ENTRY, contract: CONTRACT_PROCESS_ENTRY },
+  analyze_beliefs: { instructions: DEFAULT_INSTRUCTIONS_ANALYZE_BELIEFS, contract: CONTRACT_ANALYZE_BELIEFS },
+  detect_patterns: { instructions: DEFAULT_INSTRUCTIONS_DETECT_PATTERNS, contract: CONTRACT_DETECT_PATTERNS },
+};
 
 export function buildDetectPatternsUser(input: {
   idioma: string;

@@ -17,7 +17,8 @@ import {
 } from './_lib/runtime.js';
 import { applyCors } from './_lib/cors.js';
 import { runStructured, CLAUDE_MODEL } from './_lib/claude.js';
-import { SYSTEM_PROCESS_ENTRY, buildProcessEntryUser } from './_lib/prompts.js';
+import { buildProcessEntryUser } from './_lib/prompts.js';
+import { getSystemPrompt, promptVersionLabel } from './_lib/prompt-loader.js';
 import { trackServer } from './_lib/analytics.js';
 
 // 60s: Claude com timeout 25s + 1 retry (~50s no pior caso). Com 30s dava 504
@@ -145,9 +146,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 3) Monta histórico resumido (contexto) a partir dos últimos registros.
     const historicoResumido = body.historico_resumido ?? (await buildHistorico(db, user.id, entryId));
 
-    // 4) Chama o Claude.
+    // 4) Chama o Claude. O prompt de sistema vem do carregador: instrução editável
+    //    pelo admin (tabela ai_prompts) + contrato JSON fixo do código.
+    const prompt = await getSystemPrompt('process_entry');
     const { data: ai, raw } = await runStructured<AiResult>(
-      SYSTEM_PROCESS_ENTRY,
+      prompt.system,
       buildProcessEntryUser({
         transcricao,
         idioma: body.idioma ?? 'pt-BR',
@@ -187,7 +190,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const logErr = await insertAnalysisLog(db, user.id, entryId, raw);
+    const logErr = await insertAnalysisLog(
+      db,
+      user.id,
+      entryId,
+      raw,
+      promptVersionLabel(PROMPT_VERSION, prompt)
+    );
     if (logErr) console.error('[process-entry] erro ao inserir log de análise:', logErr);
 
     await db.from('entries').update({ processing_status: 'done' }).eq('id', entryId);
@@ -244,13 +253,14 @@ async function insertAnalysisLog(
   db: ReturnType<typeof serviceClient>,
   userId: string,
   entryId: string,
-  rawResponse: unknown
+  rawResponse: unknown,
+  promptVersion: string = PROMPT_VERSION
 ): Promise<unknown> {
   const { error } = await db.from('entry_analysis_logs').insert({
     user_id: userId,
     entry_id: entryId,
     parsed_thoughts: [],
-    prompt_version: PROMPT_VERSION,
+    prompt_version: promptVersion,
     ai_model: CLAUDE_MODEL,
     raw_response: JSON.stringify(rawResponse),
   });

@@ -414,6 +414,46 @@ export const ptBR = {
       patterns: 'Padrões',
       feedback: 'Sugestões',
       users: 'Usuários',
+      prompts: 'Prompts da IA',
+    },
+    prompts: {
+      title: 'Prompts da IA',
+      intro:
+        'Aqui você ajusta as instruções que a IA recebe em cada etapa da análise. Edite o texto, salve e pronto: o app passa a usar a nova versão em até 1 minuto, sem precisar atualizar nas lojas. O formato de resposta (os campos que o app lê) é fixo e fica protegido, então você não corre o risco de quebrar a análise.',
+      processEntry: {
+        title: 'Emoções',
+        desc: 'Primeira etapa: lê o relato e identifica as emoções presentes.',
+      },
+      analyzeBeliefs: {
+        title: 'Crenças',
+        desc: 'Segunda etapa: a partir do relato e das emoções validadas, levanta hipóteses de crenças centrais.',
+      },
+      detectPatterns: {
+        title: 'Padrões',
+        desc: 'Terceira etapa: analisa o histórico de registros e identifica padrões recorrentes.',
+      },
+      instructionsLabel: 'Instruções para a IA',
+      versionDefault: 'Versão padrão (do código)',
+      versionCustom: 'Versão personalizada {{version}}',
+      customBadge: 'Este prompt tem uma versão personalizada salva',
+      saved: 'Salvo',
+      discard: 'Descartar alterações',
+      history: 'Histórico',
+      historyTitle: 'Versões anteriores',
+      historyEmpty: 'Nenhuma versão anterior ainda.',
+      loadVersion: 'Carregar esta versão',
+      loadVersionConfirm:
+        'Carregar a versão {{version}} no editor? Ela substitui o texto atual, mas só passa a valer quando você clicar em Salvar.',
+      resetDefault: 'Restaurar padrão',
+      resetConfirm:
+        'Voltar para o texto padrão do código? A sua versão personalizada fica guardada no histórico e pode ser recarregada depois.',
+      showContract: 'Ver o formato de resposta (fixo)',
+      hideContract: 'Ocultar o formato de resposta',
+      contractNote:
+        'Este bloco é anexado automaticamente ao final das suas instruções. Ele define os campos que o app lê e não pode ser editado.',
+      effectNote:
+        'Dica: mude uma coisa por vez, salve e teste com 2 ou 3 registros reais antes do próximo ajuste. Toda versão salva fica no histórico e pode ser restaurada.',
+      loadError: 'Não foi possível carregar os prompts. Verifique sua conexão e tente de novo.',
     },
     period: {
       d7: '7 dias',
