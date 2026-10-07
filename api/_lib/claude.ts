@@ -8,7 +8,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from './runtime.js';
 
-export const CLAUDE_MODEL = 'claude-sonnet-4-5';
+// Sonnet 4.5 foi aposentado pela Anthropic (fim do suporte em 24/11/2026,
+// instabilidade a partir de 30/10/2026). Sonnet 5 é o substituto recomendado:
+// mais capaz e mais barato. Único lugar que define o modelo; todos os
+// endpoints (process-entry, analyze-beliefs, detect-patterns...) usam daqui.
+export const CLAUDE_MODEL = 'claude-sonnet-5';
 
 let _client: Anthropic | null = null;
 function client(): Anthropic {
