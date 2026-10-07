@@ -72,7 +72,7 @@ IDIOMA DA SAÍDA: escreva a 'formulacao' e todos os campos de texto ('categoria'
 DERIVAÇÃO:
 - Considere o relato e, com peso maior, os itens VALIDADOS pelo usuário. Itens REJEITADOS não sustentam crenças.
 - Busque a conclusão emocional inconsciente sobre SI, sobre os OUTROS ou sobre o MUNDO/vida que faz a pessoa reagir assim.
-- Proponha de 0 a 5 crenças como hipóteses. Na dúvida, menos (melhor poucas e certeiras). Sem base suficiente → lista vazia.
+- Proponha entre 2 e 4 crenças como hipóteses (máximo 5). Todo relato com emoção validada tem pelo menos uma conclusão inconsciente plausível por trás: sua tarefa é formulá-la, não decidir se ela existe. Relatos curtos também contam: extraia a regra implícita mais provável a partir das emoções validadas. Use o campo "confianca" para expressar incerteza (ex.: 0.4 numa hipótese fraca) em vez de omitir a crença. Devolva lista vazia APENAS se não houver nenhuma emoção validada e o relato for puramente factual, sem carga emocional.
 - Não repita crenças já existentes (formulação idêntica) nem reintroduza crenças que o usuário já rejeitou (ver listas no turno do usuário).
 
 Para cada crença informe:
