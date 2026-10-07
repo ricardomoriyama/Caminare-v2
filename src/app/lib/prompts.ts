@@ -32,19 +32,43 @@ export interface PromptHistoryItem {
   saved_at: string;
 }
 
-/** Padrões do código (instrução + contrato fixo) de cada prompt. Só admin. */
+/**
+ * Padrões do código (instrução + contrato fixo) de cada prompt. Só admin.
+ * Lê primeiro do banco (ai_prompt_defaults, RLS de admin, mesmo caminho que já
+ * funciona pros prompts salvos). Se a tabela ainda estiver vazia, chama o
+ * endpoint, que devolve os padrões E os grava no banco pras próximas vezes.
+ */
 export async function getPromptDefaults(): Promise<Record<PromptKey, PromptDefault> | null> {
+  const fromDb = await readDefaultsFromDb();
+  if (fromDb) return fromDb;
   try {
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     const res = await fetch(apiUrl('/api/admin-prompts'), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error('[prompts.getPromptDefaults] endpoint respondeu', res.status, await res.text());
+      return null;
+    }
     const json = (await res.json()) as { prompts?: Record<PromptKey, PromptDefault> };
     return json.prompts ?? null;
   } catch (err) {
     console.error('[prompts.getPromptDefaults]', err);
+    return null;
+  }
+}
+
+async function readDefaultsFromDb(): Promise<Record<PromptKey, PromptDefault> | null> {
+  try {
+    const { data, error } = await supabase.from('ai_prompt_defaults').select('key, instructions, contract');
+    if (error || !data) return null;
+    const rows = data as Array<{ key: PromptKey; instructions: string; contract: string }>;
+    if (!PROMPT_KEYS.every((k) => rows.some((r) => r.key === k))) return null;
+    const out = {} as Record<PromptKey, PromptDefault>;
+    for (const r of rows) out[r.key] = { instructions: r.instructions, contract: r.contract };
+    return out;
+  } catch {
     return null;
   }
 }
